@@ -1,6 +1,5 @@
-
 import RPi.GPIO as GPIO
-from time import sleep
+import time
 from datetime import datetime
 import sys
 
@@ -8,54 +7,47 @@ GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
 
 # args
-iter_max = 1e4
+blink_time = 1.0
+prgm_dur = 10
 debug = False
 
-if (len(sys.argv) > 1): iterCount = int(sys.argv[1])
-if (len(sys.argv) > 2): debug = True
-if (debug): print (f'Number of loop iterations before termination: {iter_max}')
+if (len(sys.argv) > 1): blink_time = float(sys.argv[1])
+if (len(sys.argv) > 2): prgm_dur = int(sys.argv[2])
+if (len(sys.argv) > 3): debug = True
 
-led_out = 11 # GPIO 17
-switch_in = 13 # GPIO 27
+iterCount = int(prgm_dur / blink_time)
 
-GPIO.setup(led_out, GPIO.OUT)
+if (debug): print (f'Number of loop iterations before termination: {iterCount}')
+
+led_out = 35 # GPIO 17
+switch_in = 37 # GPIO 27
+
+GPIO.setup(led_out, GPIO.OUT, initial=GPIO.LOW)
 GPIO.setup(switch_in, GPIO.IN)
+
+LED_ON = False
+
+start_time = time.time()
 
 with open('data.txt', 'w') as f:
 
-    on = False
-    for iter in range(ITER_COUNT):
-        output_time = datetime.fromtimestamp()
+   for i in range(iterCount):
+ 
+      if GPIO.input(switch_in):
 
-        if debug:
-            print(f'SYSTEM TIME: {output_time} -- ITER: {iter} -- LED State: {on})
+         LED_ON = not(LED_ON)
+      else:
+         LED_ON = False
+         
+      GPIO.output(led_out, LED_ON)
 
-        if GPIO.input(switch_in):
-            if time is not None:
-                if time - time.time() < 0.01:
-                    on = False # turn off LED for one second
+      f.write(f'{(time.time()-start_time):1.2f} \t  {LED_ON}\n')
 
-                    # add to file after state of LED is changed
-                    f.write(f'TIME: {time.time():1.00f} \t NEW LED STATE: {on}\n')
-                    
-                    time = time.time() # reset time
-                
-            else:
-                on = True
+      if debug:
+         print(f'The LED is on: {LED_ON} \t Time since start: {(time.time()-start_time):1.2f} \t Number of iterations: {i}')
 
-                # add to file after state of LED is changed
-                f.write(f'TIME: {time.time():1.00f} \t NEW LED STATE: {on}\n')
-
-                time = time.time() # switch was just activated
-            
-
-        else:
-            time = None # deactivate time in case it was set
-            on = False
-
-            # add to file after state of LED is changed
-            f.write(f'TIME: {time.time():1.00f} \t NEW LED STATE: {on}\n')
-
+      time.sleep(blink_time)
+      
 
 GPIO.cleanup()
 

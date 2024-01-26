@@ -1,0 +1,5 @@
+0.00 	  False
+2.00 	  False
+4.00 	  True
+6.01 	  False
+8.01 	  True
