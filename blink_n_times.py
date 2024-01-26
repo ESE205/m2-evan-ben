@@ -4,7 +4,7 @@ GPIO.setwarnings(False)    # Ignore warning for now
 GPIO.setmode(GPIO.BOARD)   # Use physical pin numbering
 import sys
 
-ITER_COUNT = 15  
+ITER_COUNT = 5  
 
 if(len(sys.argv) > 1): ITER_COUNT = int(sys.argv[1])
 
